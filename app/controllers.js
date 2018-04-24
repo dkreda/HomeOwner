@@ -82,7 +82,7 @@ homeOwnSys.controller("securityCheck",function($log,$scope,UserManager,$routePar
 homeOwnSys.controller("homeNav",function($scope,$log,UserManager){
     const setLink = (target) => "#!" + UserManager.sessionID() + "/" + target;
     $scope.menuItems= [{text: "Login" , link: "#!Login"} ,
-                       {text: "Tenant" , link: setLink("tenant") } ,
+                       {text: "Votes" , link: setLink("votes") } ,
                        {text: "Messages" , link: setLink("messages") },
                        {text: "Issues" , link : setLink("issues")} ,
                        {text: "DashBord" , link: setLink("dashboard")}  ] ;
