@@ -1,0 +1,28 @@
+<!-- <p>MsgRecorse ...</p> -->
+
+<div class="row">
+    <div class="col-sm-2">
+        <button ng-click="addMessage(msg.getID())" name="" id="" class="btn btn-primary">answer</button>
+    </div>
+
+    <div class="col-sm-10">
+        <div ng-if="msg.mesageList.length > 0">
+            <div ng-repeat="msg in msgList" class="card">
+                <div class="card-header" data-toggle="collapse" data-target="{{'#' + msg.getID()}}">
+
+                    <!-- <h4>{{msg.title}}</h4>
+                <p>{{msg.createdAt + " :" + msg.createdBy}}</p>-->
+                    <notif-Header></notif-Header>
+                </div>
+
+                <div class="card-body collapse" id="{{msg.getID()}}">
+                    <!-- <h4 class="card-title">{{issue.createdAt  + " :" + issue.createdBy}}</h4> -->
+                    <p class="card-text">{{msg.text}}</p>
+
+                    <div ng-init="msgList=msg.mesageList" ng-include="'html/msgRecorse.html'"></div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>

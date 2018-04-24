@@ -1,0 +1,11 @@
+<!-- The html code below is implemntation of "notif-Header" directive
+    This is card header (or panel header) implemntation. and the stlyle
+    is changed acording to the readflag state ... -->
+<Dummy ng-click="setReadFlag(msg.getID())" >
+    <small>
+    <h6 class="card-title" style="font-weight:{{msg.readFlag ? 'bold' : 'normal'}}"> {{"> " + msg.title}}
+        <span ng-if="msg.readFlag"> *</span>
+    </h6>
+    <p>{{msg.createdAt + " by " + msg.createdBy}}</p>
+</small>
+</Dummy>

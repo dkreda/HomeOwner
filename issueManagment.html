@@ -1,0 +1,13 @@
+<error-notif ng-if="! authorized"></error-notif>
+<div class="container" ng-if="authorized">
+    <top-navigator ng-controller="IssueNav"></top-navigator>
+    <div colaps-card ng-controller="newIssues">
+    </div>
+
+    <div colaps-card ng-controller="overdueIssues">
+    </div>
+
+    <div colaps-card ng-controller="closedIssues">
+    </div>
+
+</div>

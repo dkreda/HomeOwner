@@ -1,0 +1,78 @@
+<div class="container" ng-controller="createIssue">
+    <div class="card">
+        <div class="card-header">
+            <h2>Open new Issue</h2>
+        </div>
+        <div class="card-body">
+            <h4 class="card-title">{{user}}</h4>
+
+
+            <div class="form-group">
+                <div class="row">
+
+                    <div class="col-md-1">
+                        <label for="issueTitle">Title</label>
+                    </div>
+                    <div class="col-md-11">
+                        <input type="text" ng-model="title" class="form-control" name="" id="issueTitle" placeholder="{{msgID == 'N/A' ? 'message title' : parent.title}}">
+                        <!--small id="helpId" class="form-text text-muted">Help text</small-->
+                    </div>
+                    <div id="test">
+                        <form action="">
+                            <div class="bootstrap-iso">
+                                <div class="form-group">
+
+
+                                    <div class="form-check">
+                                        <div>
+                                            <label class="form-check-label">
+                                                <input type="radio" ng-model="rTest" class="form-check-input" name="dueDate" id="" value="No limit" checked> No due date
+                                            </label>
+                                        </div>
+                                        <div>
+                                            <small style="color: red">{{errorMsg}}</small>
+                                            <label class="form-check-label">
+                                                <input type="radio" ng-value="dueDateVal" ng-model="rTest" class="form-check-input" name="dueDate" id="" value="due"> Due date
+                                                <input ng-change="testme()" type="text" datepicker="{{options}}" ng-model="dueDateVal" class="form-control" name="date"
+                                                id="date" aria-describedby="helpId" placeholder="">
+
+                                            </label>
+                                            
+                                        </div>
+                                    </div>
+                                    
+
+
+                                    <!--
+                                    <label for="date">Due Date:</label>
+                                    <input type="text" datepicker="{{options}}" class="form-control" name="date" id="date" aria-describedby="helpId" placeholder="">
+                                    <small id="helpId" class="form-text text-muted">Help text</small>
+                                -->
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+
+
+
+            </div>
+            <label for="IssueDesc">Description</label>
+            <textarea ng-model="text" class="form-control" rows="5" name="IssueDesc" id="IssueDesc" aria-describedby="helpId" placeholder="write your text hear">
+                </textarea>
+            <small id="helpId" class="form-text text-muted">
+                insert detailed description of the issue
+            </small>
+
+            <button ng-click="commit()" class="btn btn-primary">submit</button>
+            <a href="{{home}}" class="btn btn-primary" type="button">Cancel</a>
+
+            
+        </div>
+
+    </div>
+
+</div>
+</div>
+</div>

@@ -1,0 +1,6 @@
+<error-notif ng-if="! authorized"></error-notif>
+<div class="container" ng-if="authorized">
+        <top-navigator ng-controller="MsgNav"></top-navigator>
+        <div colaps-card ng-controller="ctlMessages">
+        </div>
+</div>

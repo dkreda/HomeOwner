@@ -1,0 +1,66 @@
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title">{{secTitle}}</h5>
+    </div>
+    <div class="card-body listContent">
+        <div ng-repeat="issue in issues" class="card">
+            <div class="card-header" data-toggle="collapse" data-target="{{'#' + issue.getID()}}" ng-switch="headerTag">
+                <simple-Header ng-switch-when="simple"></simple-Header>
+                <notif-Header ng-init="msg=issue" ng-switch-when="notifHeader"></notif-Header>
+
+            </div>
+            <div class="card-body collapse" id="{{issue.getID()}}">
+                <!-- <p>{{issue.details}}</p> -->
+                <div ng-switch="contentTag">
+                    <div ng-switch-when="list">
+                        <div ng-repeat="com in issue.comments">
+                            <small>
+                                <p>{{com.createdAt + " :" + com.createdBy}}</p>
+                            </small>
+                            <p>{{com.text}}</p>
+                        </div>
+
+                        <div class="editable">
+                            <button type="button" class="btn btn-primary" data-toggle="collapse" 
+                                    data-target="{{'#txt' + issue.getID()}}" aria-pressed="false" 
+                                    autocomplete="off" ng-click="clickComment(issue.getID())">add comment</button>
+                            <button type="button" class="btn btn-primary" data-toggle="collapse" 
+                                    data-target="{{'#txt' + issue.getID()}}" aria-pressed="false" 
+                                    autocomplete="off" ng-click="clickState(issue.getID())">{{nextState}}</button>
+                            
+                        </div>
+                        <div class="collapse" id="{{'txt' + issue.getID()}}">
+                            <div class="form-group">
+                              <label for="{{'com' + issue.getID()}}">{{inputLabel}}</label>
+                              <textarea type="text" class="form-control" name="" id="{{'com' + issue.getID()}}"
+                                        aria-describedby="helpId" placeholder="" ng-model="text[issue.getID()]">
+                              </textarea>
+                              <!--small id="helpId" class="form-text text-muted">Help text</small-->
+                              <button class="btn btn-primary" data-toggle="collapse" 
+                                    data-target="{{'#txt' + issue.getID()}}" 
+                                    ng-click="addComment(issue.getID())">add</button>
+                              <button class="btn btn-primary" data-toggle="collapse" 
+                                    data-target="{{'#txt' + issue.getID()}}" >Cancel</button>
+                              <button class="btn btn-primary" ng-click="clear(issue.getID())">Clear</button>
+                            </div>
+                        </div>
+                        
+                    </div>
+                    <div ng-switch-when="simple-cont">
+                        <p>{{issue.text}}</p>
+
+
+                        <div class="card-body listContent">
+                            <div ng-init="msgList=issue.mesageList;msg=issue" ng-include="'html/msgRecorse.html'"></div>
+
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>

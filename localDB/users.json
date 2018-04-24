@@ -1,0 +1,51 @@
+[
+    {
+        "name" : "Danny" ,
+        "mail":  "dd@gmail.com" ,
+        "password" : "12345",
+        "appartment" : 13 ,
+        "isCommetee" : true
+    } ,
+    {
+        "name" : "Moshe Peretz" ,
+        "mail":  "mPeretz@gmail.com" ,
+        "password" : "12345",
+        "appartment" : 1 ,
+        "isCommetee" : false
+    } ,
+    {
+        "name" : "Yoram Tagor" ,
+        "mail":  "mPeretz@gmail.com" ,
+        "password" : "1hhfs4sdf",
+        "appartment" : 2 ,
+        "isCommetee" : false
+    },
+    {
+        "name" : "Nava Dolev" ,
+        "mail":  "nDolev@gmail.com" ,
+        "password" : "12hfs7345",
+        "appartment" : 3 ,
+        "isCommetee" : false
+    },
+    {
+        "name" : "Masha pomerantsky" ,
+        "mail":  "jinjy@teva.com" ,
+        "password" : "12345ddd",
+        "appartment" : 4 ,
+        "isCommetee" : true
+    },
+    {
+        "name" : "Miryam puputsk" ,
+        "mail":  "mPepito@gmail.com" ,
+        "password" : "123dasds45",
+        "appartment" : 5 ,
+        "isCommetee" : false
+    },
+    {
+        "name" : "julia roberts" ,
+        "mail":  "mProbz@gmail.com" ,
+        "password" : "12345",
+        "appartment" : 6 ,
+        "isCommetee" : false
+    }
+]

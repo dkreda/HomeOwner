@@ -1,0 +1,35 @@
+<div id="MainPage">
+    <div class="container">
+        <top-navigator ng-controller="homeNav"></top-navigator>
+
+        <div class="jumbotron">
+            <h1 class="display-3">Homeowner Association Managment System</h1>
+            <p class="lead">short explanation about this system</p>
+            <hr class="my-2">
+            <p>some more info and ....</p>
+            <p class="lead">
+                <a class="btn btn-primary btn-lg" href="#!Login" role="button">Login</a>
+            </p>
+        </div>
+
+
+        
+        <div class="row" id="cardMenu" ng-controller="homeMenu">
+            <div class="card-deck">
+                <div ng-repeat="item in menuItems" class="col-md-3">
+                    <a href="{{target(item.link)}}">
+                        <div class="card">
+                            <img class="card-img-top" src="{{imgPath(item.image)}}" alt="{{item.image}}">
+                            <div class="card-body" style="height: 10em">
+                                <h4 class="card-title">{{item.title}}</h4>
+                                <p class="card-text">{{item.text}}</p>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+    </div>
+</div>
+</div>
