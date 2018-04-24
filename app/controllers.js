@@ -1,3 +1,9 @@
+
+// Load the Visualization API and the corechart package.
+google.charts.load('current', {'packages':['corechart']});
+
+var gg ;
+
 /* ***************************
  C O N T R O L E R S !!!!!
  ****************************/
@@ -108,6 +114,17 @@ homeOwnSys.controller("IssueNav",function($scope,$log,UserManager){
     $scope.homeLink="#!" + UserManager.sessionID() + "/index.html";
 });
 
+homeOwnSys.controller("VoteNav",function($scope,$log,UserManager){
+    const setLink = (target) => "#!" + UserManager.sessionID() + "/" + target;
+    $scope.menuItems= [{text: "Logout" , link: "#!"} ,
+                       {text: "Tenant" , link: setLink("tenant") } ,
+                       {text: "Issues" , link: setLink("issues") },
+                       {text: "Message" , link : setLink("messages")} ,
+                       {text: "DashBord" , link: setLink("dashboard")} ,
+                       {text: "New Vote" , link: setLink("newVote") }  ] ;
+    $scope.homeText="Home";
+    $scope.homeLink="#!" + UserManager.sessionID() + "/index.html";
+});
 
 homeOwnSys.controller("newIssues", function ($scope, $log, issues,UserManager) {
     $log.debug("- initiates new Issues.");
@@ -384,4 +401,82 @@ homeOwnSys.controller("createIssue",function($scope,$log,issues,UserManager,$loc
     let url=$location.path();
     $scope.home="#!" + url.replace(/[^\/]+$/,"index.html")
     $scope.commit=commit;
+});
+
+homeOwnSys.controller("votingCtl",function($log,$scope,UserManager,VotingService){
+
+    // Set a callback to run when the Google Visualization API is loaded.
+    google.charts.setOnLoadCallback(this.drawChart);
+
+    //$log.debug("Controller voting got from ggogle " + gg ) ;
+
+    function dataTable(voteID){
+        let vOp = VotingService.getVoteResults(voteID);
+        let dataTable = new google.visualization.DataTable();
+        dataTable.addColumn('string','option');
+        dataTable.addColumn('number','votes');
+        let rows=[];
+        for ( let k in vOp ) {
+            rows.push([k,vOp[k]]);
+        }
+        dataTable.addRows(rows);
+        return dataTable;
+    }
+
+    function setIndex(vID) {
+        return vID.replace(/\//g,"0").replace(/\:/g,"");
+    }
+
+    function drawChart(voteID) {
+
+        $log.debug("index pie" + setIndex(voteID));
+        let chart = new google.visualization.PieChart(document.getElementById('pie'+ setIndex(voteID)));
+        chart.draw(dataTable(voteID), {title: "vote results"});
+        disableList[voteID] = true;
+    }
+
+    let disableList={};
+    //let lSize=VotingService.VotingList.length;
+    //$log.debug("- disable list " + lSize ) ;
+    for ( let i= 0 ; i< VotingService.VotingList.length ; i++ ) {
+        disableList[VotingService.VotingList[i]] = false;
+    }
+    //$log.debug("- finish disabling ...");
+    function vote(votID) {
+        //$log.debug("*****************************************************");
+        if ( ! VotingService.userCanVote(votID) ) {
+            alert("user '" + UserManager.user() + "' can not vote\n" + "you already voted");
+            return ;
+        }
+        if ( $scope.votVal[votID] === undefined  ){
+            alert("No option selected");
+            return ;
+        }
+        VotingService.vote(votID,$scope.votVal[votID]);
+        drawChart(votID);
+        disableList[votID]=true;
+        let tmp=$scope.votVal[votID];
+        $scope.votVal[votID]= undefined;
+        $scope.votVal[votID] = tmp;
+    }
+
+    $log.debug("Vote Controler - start initializing scope .....");
+
+    if ( $scope.votVal === undefined ) $scope.votVal={};
+    $scope.dis=disableList;
+    $scope.votingList=VotingService.VotingList;
+    $scope.voteRec=VotingService.getVoting;
+    $scope.canVote=VotingService.userCanVote; 
+    $scope.drawPie=drawChart;
+    $scope.setIndex = setIndex ;
+    $scope.vote=vote;
+    $scope.user=UserManager.user();
+    $log.debug("Controller got " + $scope.votingList.length);
+    /*
+    $scope.$on('$viewContentLoaded',function() {
+        $log.debug("Start building pies .....");
+        for ( let i = 0 ; i < VotingService.VotingList.length ; i ++) {
+            drawChart(voteID);
+        }
+    });*/
 });

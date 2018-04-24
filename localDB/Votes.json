@@ -1,0 +1,30 @@
+[
+    {
+        "options" : ["Yes" ,"No"] ,
+        "dueDate" : "4/23/2019 11:00" ,
+        "title" : "replace all balconies" ,
+        "createdBy" : "Me" ,
+        "createdAt" : "12/3/2018 5:04" ,
+        "details" : "Explain the titel in more details ....." ,
+        "votes" : [ {"option" : "Yes" , "user" : "kuku"} ,
+                    {"option" : "Yes" , "user" : "bibi"},
+                    {"option" : "Yes" , "user" : "ooops"},
+                    {"option" : "No" , "user" : "Menn"}]
+    } ,
+    {
+        "options" : ["Jimbory" ,"Jim" ,"Garden","Renovation"] ,
+        "dueDate" : "5/14/2019 11:00" ,
+        "title" : "where to invest surplus tax" ,
+        "createdBy" : "Me" ,
+        "createdAt" : "12/23/2018 15:04" ,
+        "details" : "Explain the titel in more details ....." ,
+        "votes" : [ {"option" : "Jim" , "user" : "kuku"} ,
+                    {"option" : "Garden" , "user" : "bibi"},
+                    {"option" : "Renovation" , "user" : "ooops"},
+                    {"option" : "Jimbory" , "user" : "Me"} ,
+                    {"option" : "Garden" , "user" : "bibi"},
+                    {"option" : "Garden" , "user" : "ooops"},
+                    {"option" : "Garden" , "user" : "Me"} ]
+    }
+
+]

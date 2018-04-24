@@ -106,6 +106,8 @@ homeOwnSys.config(function ($routeProvider) {
     when("/Login",{templateUrl: "Login.html" , controller: "ctlLogin"}).
     when("/:session/newIssue",{ templateUrl: templateFolder + "/newIssue.html" ,
                                 controller: "securityCheck"}).
+    when("/:session/votes",{ templateUrl: "/VoteManagment.html" ,
+                                controller: "securityCheck"}).
     //otherwise({ template : "<h1>error1.html</h1>"});
     otherwise({templateUrl: "error1.html"});
 });

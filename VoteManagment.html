@@ -1,0 +1,67 @@
+<error-notif ng-if="! authorized"></error-notif>
+<div class="container" ng-if="authorized">
+    <top-navigator ng-controller="VoteNav"></top-navigator>
+    
+    <div ng-controller="votingCtl">
+        <h3>{{user}}</h3>
+        <div ng-repeat="vIndex in votingList">
+            <div class="VotingCont">
+                <!--p> vote view of {{vIndex}} </p-->
+                <div ng-init="vRec=voteRec(vIndex)">
+
+
+                    <!--div class="card text-white bg-primary|secondary|success|danger|warning|info|light|dark|link">
+                      <img class="card-img-top" src="holder.js/100px180/" alt="">
+                      <div class="card-body">
+                        <h4 class="card-title">Title</h4>
+                        <p class="card-text">Text</p>
+                      </div>
+                    </div-->
+
+                    <div class="card" style="margin-top: 10px">
+                        <div class="card-header text-light bg-dark">
+                            {{vRec.title}} {{canVote(vIndex) ? " *" : ""}}
+                        </div>
+                        <div class="card-body">
+                            
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <p>Duedate: {{vRec.dueDate()}}</p>
+                                    <p class="card-text">{{vRec.details}}...</p>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-check">
+                                        <div ng-repeat="opName in vRec.options()">
+                                            <label class="form-check-label" for="{{opName+vIndex}}">
+                                                <input type="radio" ng-model="votVal[vIndex]"  class="form-check-input" name="{{'op' + vIndex}}" 
+                                                       id="{{opName+vIndex}}" value="{{opName}}">{{opName}}
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div align="center" style="margin-top: 10px">
+                                    <button type="button" class="btn btn-primary" ng-click="vote(vIndex)"
+                                            ng-disabled="votVal[vIndex] === undefined || ! canVote(vIndex)">Vote</button>
+                                    <button type="button" class="btn btn-primary" ng-click="drawPie(vIndex)" ng-hide="dis[vIndex]">show results</button>
+                                    </div >
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div id="{{'pie' + setIndex(vIndex)}}" ></div>
+                                    
+                                </div>
+
+                            </div>
+
+                            
+                        </div>
+
+                    </div>
+
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+</div>
