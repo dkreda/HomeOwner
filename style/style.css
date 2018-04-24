@@ -1,5 +1,11 @@
 .test {
-    background-color: green;
+    background-color: rgb(206, 201, 221);
+    color: rgb(38, 8, 59);
+}
+
+.test .nav-link {
+    color: rgb(38, 8, 59);
+    font-weight: bold ;
 }
 
 .test a:hover {
