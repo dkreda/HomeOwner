@@ -33,7 +33,7 @@
                                             <small style="color: red">{{errorMsg}}</small>
                                             <label class="form-check-label">
                                                 <input type="radio" ng-value="dueDateVal" ng-model="rTest" class="form-check-input" name="dueDate" id="" value="due"> Due date
-                                                <input ng-change="testme()" type="text" datepicker="{{options}}" ng-model="dueDateVal" class="form-control" name="date"
+                                                <input ng-change="testme()" type="text" data-provide="datepicker" ng-model="dueDateVal" class="form-control" name="date"
                                                 id="date" aria-describedby="helpId" placeholder="">
 
                                             </label>
