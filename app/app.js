@@ -24,22 +24,23 @@ function UrlAddress(baseUrl) {
 }
 
 function UserObj(username, userpassword, userappartment, usermail, commetee) {
-  let name = username;
-  var password = userpassword;
-  let appartment = userappartment;
-  let mail = usermail;
-  let isCommetee = commetee;
+  this.name = username;
+  let password = userpassword;
+  this.appartment = userappartment;
+  this.mail = usermail;
+  this.isCommetee = commetee;
+  this.validatePassword = (pass) => password == pass;
   //const validatePassword= 
-  return {
+  /*return {
     name: name,
     mail: mail,
     appartment: appartment,
     isCommetee: isCommetee,
-    validatePassword: (pass) => password == pass
+    validatePassword: (pass) => password == pass 
     //validatePassword: function(pass) { 
     //  console.log("password is " + password);
     //  return password == pass ; }
-  }
+  }*/
 }
 
 /*
@@ -102,11 +103,14 @@ homeOwnSys.config(function ($routeProvider) {
           templateUrl: "homePage.html" ,
           controller: "securityCheck"
     }).
-    when("/:session/newmessage",{ templateUrl: templateFolder + "/newMessage.html"}).
+    when("/:session/newmessage",{ templateUrl: templateFolder + "/newMessage.html",
+                                  controller: "securityCheck"}).
     when("/Login",{templateUrl: "Login.html" , controller: "ctlLogin"}).
     when("/:session/newIssue",{ templateUrl: templateFolder + "/newIssue.html" ,
                                 controller: "securityCheck"}).
     when("/:session/votes",{ templateUrl: "/VoteManagment.html" ,
+                                controller: "securityCheck"}).
+    when("/:session/newVote",{ templateUrl:  templateFolder + "/newVote.html" ,
                                 controller: "securityCheck"}).
     //otherwise({ template : "<h1>error1.html</h1>"});
     otherwise({templateUrl: "error1.html"});

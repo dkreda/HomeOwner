@@ -1,5 +1,5 @@
-<error-notif ng-if="! authorized"></error-notif>
-<div class="container" ng-if="authorized">
+<error-notif ng-if="authorized == 'blocked'"></error-notif>
+<div class="container" ng-if="authorized != 'blocked'">
     <top-navigator ng-controller="VoteNav"></top-navigator>
     
     <div ng-controller="votingCtl">

@@ -1,0 +1,56 @@
+<error-notif ng-if="authorized != 'Commetee'"></error-notif>
+<div class="container" ng-if="authorized == 'Commetee'">
+    <!-- "authorized == 'Commetee'"-->
+    <!--top-navigator ng-controller="MsgNav"></top-navigator-->
+    <div ng-controller="createVote">
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">New Vote configuration</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="form-group col-md-9">
+                        <label for="txtTitle">Title</label>
+                        <input type="text" class="form-control" name="" id="txtTitle" ng-model="title" aria-describedby="helpId" placeholder="vote title">
+                        <small id="helpId" class="form-text text-muted">short decription of the vote pupose</small>
+                    </div>
+
+                    <div class="form-group col-md-3">
+                        <label for="">Due Date</label>
+                        <input type="text" class="form-control" name="" id="" ng-model="dueDate" aria-describedby="helpId" data-provide="datepicker">
+                        <small id="helpId" class="form-text text-muted">Help text</small>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="">Description</label>
+                    <textarea class="form-control" ng-model="details" name="" id="" rows="5"></textarea>
+                </div>
+
+                <div class="form-check card">
+                    <div class="card-body">
+                        <h5 class="card-title">Vote options</h5>
+                        <div ng-repeat="opt in options">
+                            <span class="form-check-label form-inline">
+                                <input type="radio" class="form-check-input" name="" id="" value="checkedValue" checked>
+                                <input type="text" ng-model="opHash[opt]" class="form-control" name="" id="">
+                                <button ng-click="delOpt(opt)" class="btn btn-outline-primary">X</button>
+                            </span>
+                        </div>
+
+                        <button ng-click="addOption()" type="button" class="btn btn-primary">Add option</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <button ng-click="submit()" type="button" class="btn btn-primary">Submit</button>
+                    <button ng-click="cancel()" type="button" class="btn btn-primary">Cancel</button>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>

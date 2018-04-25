@@ -343,19 +343,33 @@ homeOwnSys.factory("UserManager", function ($log, $http) {
         //$log.debug(urlAddress);
         if (urlAddress.isLocal) {
             userRec = findUser(user);
+            if ( userRec instanceof UserObj && userRec.validatePassword(password)) {
+                $log.debug("user " + user + " pass authendication");
+                autherization = userRec.isCommetee ? "Commetee" : "Regular" ;
+                sessionID = Math.random().toString(36).substring(2, 15);
+            } else {
+                $log.error("authendication of " + user + " failed");
+                autherization = "blocked" ;
+                sessionID ="" ;
+            }
+            /*
             $log.debug("user is " + user);
             $log.debug(userRec);
             $log.debug("check property name " + userRec.hasOwnProperty("name"));
             autherization = userRec.hasOwnProperty("name") ? userRec.validatePassword(password) : "blocked"; // can be "blocked" , "Regular" , "Commity"
             sessionID = autherization != "blocked" ? Math.random().toString(36).substring(2, 15) : "";
+            */
+            
 
         } else {
             $log.info("Server validation is not ready yet");
-            sessionID = "1234567890";
+            sessionID = "testMode-Login";
+            autherization="Regular";
             userRec = { name: user };
         }
         $log.debug("UserManager Service. user Rec: " + userRec.name);
         $log.debug(userRec);
+        $log.debug("autheriztion: " + autherization);
         return sessionID;
     };
 
@@ -366,7 +380,9 @@ homeOwnSys.factory("UserManager", function ($log, $http) {
             $log.info(urlAddress.request({}));
         } else {
             $log.debug("Verifying session " + session);
-            return sessionID == session ? autherization : "blocked";
+            let retVal=sessionID == session ? autherization : "blocked";
+            $log.debug("autherization : " + retVal + " for session " + session);
+            return retVal;
         }
     };
 
@@ -550,6 +566,7 @@ homeOwnSys.factory("VotingService", function ($log, $http, UserManager) {
         return tmpStr.replace(/\s/g, "").replace(/GMT.+/, "");
     }
     let voteList = {};
+    let vList = [];
     let urlAddress = new UrlAddress("");
 
     function initLocal() {
@@ -560,8 +577,11 @@ homeOwnSys.factory("VotingService", function ($log, $http, UserManager) {
             $log.info("answer arrived: " + responce);
             // clear hash table
             for (let k in voteList) delete voteList[k];
+            vList.splice(0);
             //let mask={createdBy: 0,dueDate:0,title:0,votes:0}
             for (let i = 0; i < responce.data.length; i++) {
+                createVoting(responce.data[i]);
+                /*
                 let tmpJson = responce.data[i];
                 let tmpVotRec = new Voting(tmpJson.createdBy, tmpJson.dueDate, tmpJson.title, tmpJson.options,
                     tmpJson.hasOwnProperty("createdAt") ? tmpJson.createdAt : undefined);
@@ -576,9 +596,9 @@ homeOwnSys.factory("VotingService", function ($log, $http, UserManager) {
                 //$log.debug("Voting Object:");
                 //$log.debug(tmpVotRec);
                 //$log.debug(tmpVotRec.userVoted());
-                voteList[getIndexVote(tmpVotRec)] = tmpVotRec;
+                voteList[getIndexVote(tmpVotRec)] = tmpVotRec;*/
             }
-            getAllVotes();
+            //getAllVotes();
         }, function (res) {
             $log.info(urladd);
             alert("Fail to read DB ..." + "\n Read from:\n " + urladd);
@@ -586,12 +606,12 @@ homeOwnSys.factory("VotingService", function ($log, $http, UserManager) {
     };
 
     initLocal();
-
+    /*
     function getAllVotes() {
-        vList.slice(0);
+        vList.splice(0);
         for (let k in voteList) vList.push(k);
         return vList;
-    }
+    }*/
 
     function getVoteResults(vKey) {
         let res = {};
@@ -603,8 +623,34 @@ homeOwnSys.factory("VotingService", function ($log, $http, UserManager) {
         return res;
     }
 
-    let vList = [];
-    getAllVotes();
+    function createVoting(jSon){
+        let requiredFields=["dueDate", "title", "options"];
+        for ( let i=0 ; i< requiredFields.length; i++) 
+            if ( ! requiredFields[i] in jSon )
+                throw "missing field '" + requiredFields[i] +"' in record. skip this voting record";
+        let tmpVotRec = jsonToVoteRec(jSon);
+        let index=getIndexVote(tmpVotRec);
+        voteList[index] = tmpVotRec;
+        vList.push(index);
+    }
+
+    function jsonToVoteRec(jSon){
+        let by=jSon.hasOwnProperty("createdBy") ? jSon.createdBy : UserManager.user();
+        let tmpVotRec = new Voting(by, jSon.dueDate, jSon.title, jSon.options,
+            jSon.hasOwnProperty("createdAt") ? jSon.createdAt : undefined);
+        if (jSon.hasOwnProperty("details")) tmpVotRec.details = jSon.details;
+        if (jSon.hasOwnProperty("votes")) {
+            for (let j = 0; j < jSon.votes.length; j++) {
+                let vTmp = new Vote(jSon.votes[j].option);
+                vTmp.votedBy = jSon.votes[j].user;
+                tmpVotRec.addVote(vTmp);
+            }
+        }
+        return tmpVotRec;
+    }
+
+    
+    //getAllVotes();
 
     return {
         VotingList: vList,
@@ -613,6 +659,7 @@ homeOwnSys.factory("VotingService", function ($log, $http, UserManager) {
         getVoteOptions: (vKey) => voteList[vKey].options(),
         getVoteResults: getVoteResults,
         vote: (vKey, votVal) => voteList[vKey].addVote(votVal),
-        userCanVote: (vKey) => !voteList[vKey].userVoted(UserManager.user())
+        userCanVote: (vKey) => !voteList[vKey].userVoted(UserManager.user()),
+        addVotingRecord: createVoting
     }
 });

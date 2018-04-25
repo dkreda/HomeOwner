@@ -362,25 +362,11 @@ homeOwnSys.controller("createIssue",function($scope,$log,issues,UserManager,$loc
             $scope.errorMsg="Must be valid date";
             alert("Due date muast be valide date\nor select 'No due date' option");
         }
-        ///Messages.addMessage( $scope.title , $scope.text, msgID == 'N/A' ? undefined : msgID);
-        
-        //Messages.lastMsgID=undefined;
-        //
-        //$log.debug("radio value: " + $scope.rTest);
     }
 
     $scope.errorMsg="";
     $scope.testme= () => {$scope.rTest=$scope.dueDateVal };
-    //var stam=$('#test').parent();
-    //$scope.options={format: 'dd/mm/yyyy HH:mm', 
-    //                todayHighlight: true,
-    //                autoclose: true,
-    //                container: stam,
-      //              showClear: true};
-    
-    //var input=$('input[id="date"]');
-    //input.datepicker($scope.options);
-
+/*
     $(document).ready(function(){
         console.log("....... jjjjjjjjjjjjjjjjjjjjjjjjjjjjjj");
         var date_input=$('input[name="date"]'); //our date input has the name "date"
@@ -395,7 +381,7 @@ homeOwnSys.controller("createIssue",function($scope,$log,issues,UserManager,$loc
         console.log(date_input);
         //date_input.datepicker(options);
         console.log("setup datepicker");
-      })
+      })*/
 
     $scope.user=UserManager.user();
     let url=$location.path();
@@ -479,4 +465,56 @@ homeOwnSys.controller("votingCtl",function($log,$scope,UserManager,VotingService
             drawChart(voteID);
         }
     });*/
+});
+
+homeOwnSys.controller("createVote",function($scope,$log,VotingService,$location){
+    function submit(){
+        $log.debug("clicked ....");
+        let vRec={
+            "dueDate": $scope.dueDate, 
+            "title": $scope.title, 
+            "options" : getOptions(),
+            details : $scope.details
+        }
+        VotingService.addVotingRecord(vRec);
+        backToVotesPage();
+    }
+
+    function backToVotesPage(){
+        $log.debug("go back ...");
+        let tmpPath=$location.path();
+        $log.debug("new Path:" + tmpPath.replace(/[^\/]+$/,"votes"));
+        $location.path(tmpPath.replace(/[^\/]+$/,"votes"));
+    }
+
+    
+    function addOption(){
+        let indx=Math.max.apply(null,$scope.options) + 1;
+        $scope.opHash[indx.toString()]="Option " + indx;
+        $scope.options.push(indx);
+    }
+
+    function delOption(indx){
+        delete $scope.opHash[indx];
+        $scope.options.splice(0);
+        for ( let k in $scope.opHash) $scope.options.push(k);
+        $log.debug($scope.options.length);
+        $log.debug($scope.options);
+    }
+
+    function getOptions() {
+        let opList=[];
+        for ( let k in $scope.opHash) opList.push($scope.opHash[k]);
+        return opList;
+    }
+
+    $log.debug("Controler - createVote initilized ....");
+    $scope.opHash={ 1 : "Yes" ,
+                    2 : "No" } ;
+
+    $scope.options=Object.keys($scope.opHash);
+    $scope.delOpt=delOption;
+    $scope.addOption=addOption;
+    $scope.submit=submit;
+    $scope.cancel=backToVotesPage;
 });

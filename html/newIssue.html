@@ -1,3 +1,5 @@
+<error-notif ng-if="authorized == 'blocked'"></error-notif>
+<div ng-if="authorized != 'blocked'">
 <div class="container" ng-controller="createIssue">
     <div class="card">
         <div class="card-header">
@@ -34,13 +36,13 @@
                                             <label class="form-check-label">
                                                 <input type="radio" ng-value="dueDateVal" ng-model="rTest" class="form-check-input" name="dueDate" id="" value="due"> Due date
                                                 <input ng-change="testme()" type="text" data-provide="datepicker" ng-model="dueDateVal" class="form-control" name="date"
-                                                id="date" aria-describedby="helpId" placeholder="">
+                                                    id="date" aria-describedby="helpId" placeholder="">
 
                                             </label>
-                                            
+
                                         </div>
                                     </div>
-                                    
+
 
 
                                     <!--
@@ -68,11 +70,10 @@
             <button ng-click="commit()" class="btn btn-primary">submit</button>
             <a href="{{home}}" class="btn btn-primary" type="button">Cancel</a>
 
-            
+
         </div>
 
     </div>
 
-</div>
 </div>
 </div>
