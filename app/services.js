@@ -108,7 +108,7 @@ homeOwnSys.factory("issues", function ($log, ServerRequets) { // $http) {
 
     function init() {
         $log.debug("Issues services load DB");
-        let url = ServerRequets.localMode ? dbFolder + "/issues.json" : "iSsue-Server-Remote";
+        let url = ServerRequets.localMode ? dbFolder + "/Issues.json" : "iSsue-Server-Remote";
         let req = ServerRequets.sendSequredReq(url, {});
         req.then(load, function () { throw "fail to load Issues from DB" });
     }
