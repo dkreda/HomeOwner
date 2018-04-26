@@ -457,7 +457,7 @@ homeOwnSys.factory("VotingService", function ($log, $http, ServerRequets) {
     function jsonToVoteRec(jSon) {
         let by = jSon.hasOwnProperty("createdBy") ? jSon.createdBy : ServerRequets.user();
         let tmpVotRec = new Voting(by, jSon.dueDate, jSon.title, jSon.options,
-            jSon.hasOwnProperty("createdAt") ? jSon.createdAt : undefined);
+            jSon.hasOwnProperty("createdAt") ? jSon.createdAt : Date());
         if (jSon.hasOwnProperty("details")) tmpVotRec.details = jSon.details;
         if (jSon.hasOwnProperty("votes")) {
             for (let j = 0; j < jSon.votes.length; j++) {
