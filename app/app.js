@@ -102,7 +102,7 @@ homeOwnSys.config(function ($routeProvider) {
                        controller: "securityCheck"}).
     when("/:session/votes",{ templateUrl: "/VM.html" ,
                                 controller: "securityCheck"}).
-    when("/votes",{ templateUrl: "/VM.html" ,
+    when("/votes",{ templateUrl: "VM.html" ,
                             controller: "securityCheck"}).
     when("/newVote",{ templateUrl:  templateFolder + "/newVote.html" ,
                                 controller: "securityCheck"}).
