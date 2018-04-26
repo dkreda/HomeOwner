@@ -2,13 +2,11 @@
 // Load the Visualization API and the corechart package.
 google.charts.load('current', {'packages':['corechart']});
 
-//var gg ;
-
 /* ***************************
  C O N T R O L E R S !!!!!
  ****************************/
 
-homeOwnSys.controller("ctlLogin",function($log,$scope,$location,ServerRequets){ // UserManager){
+homeOwnSys.controller("ctlLogin",function($log,$scope,$location,ServerRequets){ 
     
     function finishLogin(){
         $log.debug("Checking login result ...");
@@ -49,18 +47,15 @@ homeOwnSys.controller("ctlLogin",function($log,$scope,$location,ServerRequets){ 
   });
  
 
-homeOwnSys.controller("securityCheck",function($log,$scope,ServerRequets){ //UserManager,$routeParams){
+homeOwnSys.controller("securityCheck",function($log,$scope,ServerRequets){ 
     $log.debug("Start - Security controller");   
     $scope.authorized=ServerRequets.autherization();
     $scope.sessionID="Who needs Session ID?";
     $log.debug("Security controller - authentication " + $scope.authorized); 
 
-    /*
-       $scope.authorized=UserManager.autherization($routeParams.session);
-       $scope.sessionID=UserManager.sessionID();*/
   });
  
-homeOwnSys.controller("homeMenu",function($log,$scope,ServerRequets){// } UserManager){
+homeOwnSys.controller("homeMenu",function($log,$scope,ServerRequets){
     let menuMap = {
        Dashbord : {
                  link: "test" ,
@@ -84,7 +79,6 @@ homeOwnSys.controller("homeMenu",function($log,$scope,ServerRequets){// } UserMa
                } 
     }
     $scope.imgPath= (img) => "images/" + img;
-    //$scope.target=(link) => "#!" + UserManager.sessionID() + "/" + link;
     $scope.target=(link) => "#!/" + link;
     $scope.menuItems=[];
     for (item in menuMap ) {
@@ -96,8 +90,7 @@ homeOwnSys.controller("homeMenu",function($log,$scope,ServerRequets){// } UserMa
   });
 
 
-homeOwnSys.controller("homeNav",function($scope,$log){//,UserManager){
-    //const setLink = (target) => "#!" + UserManager.sessionID() + "/" + target;
+homeOwnSys.controller("homeNav",function($scope,$log){
     const setLink = (target) => "#!/" + target;
     $scope.menuItems= [{text: "Login" , link: "#!Login"} ,
                        {text: "Votes" , link: setLink("votes") } ,
@@ -105,7 +98,6 @@ homeOwnSys.controller("homeNav",function($scope,$log){//,UserManager){
                        {text: "Issues" , link : setLink("issues")} ,
                        {text: "DashBord" , link: setLink("dashboard")}  ] ;
     $scope.homeText="Home";
-    //$scope.homeLink="#!" + UserManager.sessionID() + "/index.html";
     $scope.homeLink="#!/index.html";
 });
 
@@ -289,24 +281,14 @@ homeOwnSys.controller("ctlMessages",function($scope,$log,Messages,$location,Serv
     $log.debug("- initiates Messages controller.");
 
     function addMessage(msgID='N/A'){
-        let reqStr=$location.path();//.replace(/\/[^\/]+$/,"");
-        //let urlBuilder= new UrlAddress( reqStr);
+        let reqStr=$location.path();
         $log.debug("msgID : ");
         $log.debug(msgID);
-        ///urlBuilder.fileName="newmessage";
         Messages.lastMsgID=msgID;
-        //reqStr=urlBuilder.request(msgID == 'N/A' ? {} : { msgID: msgID} );
         reqStr=reqStr.replace(/[^\/]+$/,"newmessage");
         $log.debug("local: " + $location.path());
         $log.debug("url: " + reqStr);
-
-        //for ( let k in $location ) {
-        //    $log.debug(k + ": " + $location[k]);
-        //}
-        //$window.location.href="#!12345/newmessage";
-        $location.path(reqStr);//\?msgID=" + msgID);//.hash({msgID: msgID});
-        //$location.path("/Login");
-        //$location.path(reqStr);
+        $location.path(reqStr);
     }
 
     let title = "Messages";
@@ -322,15 +304,10 @@ homeOwnSys.controller("ctlMessages",function($scope,$log,Messages,$location,Serv
 
 homeOwnSys.controller("addMessage",function($scope,$log,Messages,ServerRequets,$location){
     $log.debug("Input from browser:");
-    //for ( let key in UserManager) {
-    //    $log.debug(key + ": ..." ) ; //+ UserManager[key]);
-    //}
     let msgID=Messages.lastMsgID;
     let pMsg= Messages.findMessageByID(msgID);
 
     function commit(){
-        //let curent = new Date();
-        //let dateStr = curent.getDate() + " " + curent.getTime();
         $log.debug("commit new message .....");
         Messages.addMessage( $scope.title , $scope.text, msgID == 'N/A' ? undefined : msgID);
         let url=$location.path();
@@ -398,8 +375,6 @@ homeOwnSys.controller("votingCtl",function($log,$scope,ServerRequets,VotingServi
     // Set a callback to run when the Google Visualization API is loaded.
     google.charts.setOnLoadCallback(this.drawChart);
 
-    //$log.debug("Controller voting got from ggogle " + gg ) ;
-
     function dataTable(voteID){
         let vOp = VotingService.getVoteResults(voteID);
         let dataTable = new google.visualization.DataTable();
@@ -433,7 +408,6 @@ homeOwnSys.controller("votingCtl",function($log,$scope,ServerRequets,VotingServi
     }
     //$log.debug("- finish disabling ...");
     function vote(votID) {
-        //$log.debug("*****************************************************");
         if ( ! VotingService.userCanVote(votID) ) {
             alert("user '" + ServerRequets.user() + "' can not vote\n" + "you already voted");
             return ;
@@ -462,13 +436,6 @@ homeOwnSys.controller("votingCtl",function($log,$scope,ServerRequets,VotingServi
     $scope.vote=vote;
     $scope.user=ServerRequets.user();
     $log.debug("Controller got " + $scope.votingList.length);
-    /*
-    $scope.$on('$viewContentLoaded',function() {
-        $log.debug("Start building pies .....");
-        for ( let i = 0 ; i < VotingService.VotingList.length ; i ++) {
-            drawChart(voteID);
-        }
-    });*/
 });
 
 homeOwnSys.controller("createVote",function($scope,$log,VotingService,$location){

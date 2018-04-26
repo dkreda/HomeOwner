@@ -1,5 +1,6 @@
 // Global Objects
 const templateFolder = "html" ;
+const dbFolder = "localDB";
 
 function UrlAddress(baseUrl) {
   let serverUrl = baseUrl;
@@ -30,39 +31,18 @@ function UserObj(username, userpassword, userappartment, usermail, commetee) {
   this.mail = usermail;
   this.isCommetee = commetee;
   this.validatePassword = (pass) => password == pass;
-  //const validatePassword= 
-  /*return {
-    name: name,
-    mail: mail,
-    appartment: appartment,
-    isCommetee: isCommetee,
-    validatePassword: (pass) => password == pass 
-    //validatePassword: function(pass) { 
-    //  console.log("password is " + password);
-    //  return password == pass ; }
-  }*/
 }
-
-/*
-UserObj.prototype.validatePassword = function(pass) {
-   console.log("running from prototype ...");
-   console.log("password is " + this.password);
-   return this.password == pass;
-}*/
-
-
-
-
 
 console.log("Hey running from app.js")
 
 var homeOwnSys = angular.module("homeOwn", ["ngRoute"]);
-//var homeOwnSys=angular.module("homeOwn",[]);
+
 
 /**************************************
  *  Directives ....
  */
 
+ /*
  homeOwnSys.directive("isutop",function(UserManager) {
    console.log("Dynamiv directive !!!!!");
    console.log("Input element:");
@@ -70,7 +50,7 @@ var homeOwnSys = angular.module("homeOwn", ["ngRoute"]);
    console.log("attt:");
    //console.log(attr);
    return { templateUrl: UserManager.autherization("8hd82h014029jd02") == "blocked" ? "error1.html" : "issueManagment.html"};
- } ); 
+ } ); */
 
 homeOwnSys.directive("topNavigator",function(){return { templateUrl: templateFolder + "/navTemplate.html"}});
 
