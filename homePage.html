@@ -19,7 +19,7 @@
                 <div ng-repeat="item in menuItems" class="col-md-3">
                     <a href="{{target(item.link)}}">
                         <div class="card">
-                            <img class="card-img-top" src="{{imgPath(item.image)}}" alt="{{item.image}}">
+                            <img class="card-img-top" ng-src="{{imgPath(item.image)}}" alt="{{item.image}}">
                             <div class="card-body" style="height: 10em">
                                 <h4 class="card-title">{{item.title}}</h4>
                                 <p class="card-text">{{item.text}}</p>

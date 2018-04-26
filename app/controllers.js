@@ -2,50 +2,65 @@
 // Load the Visualization API and the corechart package.
 google.charts.load('current', {'packages':['corechart']});
 
-var gg ;
+//var gg ;
 
 /* ***************************
  C O N T R O L E R S !!!!!
  ****************************/
 
-homeOwnSys.controller("ctlLogin",function($log,$scope,UserManager,$location){
-    function validate() {
-       $log.debug("checking " + $scope.user) ;
-       //$log.debug(u + "," + p + "," + m);
-       let session = UserManager.login($scope.user,$scope.pass);
-       if ( $scope.mode ) {
-           UserManager.setAuthenticationServer("dummy");
-           session = UserManager.login($scope.user,$scope.pass);
-           UserManager.setAuthenticationServer("");
-       }
-       if (  session.length > 0 ) {
-           $location.path("/");
-       } else {
-           $scope.logMessage="wrong user name or password. try again";
-           alert("Login failed - try again ...");
-       }
-       $log.debug(" -- Login controller: ");
-       $log.debug("- current user: " + UserManager.user());
-       //for ( let k in UserManager) {
-       //    $log.debug(k + " >>> " + UserManager[k]);
-       //}
-    }
+homeOwnSys.controller("ctlLogin",function($log,$scope,$location,ServerRequets){ // UserManager){
     
+    function finishLogin(){
+        $log.debug("Checking login result ...");
+        let next=$location.path();
+        if ( ServerRequets.autherization() == "blocked" ) {
+            $log.debug("log failed ....");
+            $scope.logMessage="wrong user name or password. try again";
+            $scope.pass=""; 
+            $('.watingProcess').hide();
+            alert("Login failed - try again ...");
+
+        } else {
+            $log.debug("log successed ...." + ServerRequets.autherization());
+            next=next.replace(/[^\/]+$/,"index.html");
+            $log.info("user '" + ServerRequets.user() + "' loged in.");
+            $log.debug("Login successed -> routing to home" + next);
+            $location.path(next);
+        }
+        return true;
+    }
+
+    function validate() {
+        $log.debug("checking " + $scope.user) ;
+        $('.watingProcess').show();
+        if ( $scope.mode  ) {
+            ServerRequets.dummyLogin($scope.user);
+            finishLogin();
+        } else {
+            ServerRequets.login($scope.user,$scope.pass,finishLogin);
+            //let tmp=
+        }
+     }
+
     $log.debug("Start login controller !!!!!!!!!");
-    //$scope.btnpress = myTest;
-    //$scope.name="aaa";
     $scope.logMessage="";
     $scope.login = validate;
     
   });
  
-homeOwnSys.controller("securityCheck",function($log,$scope,UserManager,$routeParams){
-       
+
+homeOwnSys.controller("securityCheck",function($log,$scope,ServerRequets){ //UserManager,$routeParams){
+    $log.debug("Start - Security controller");   
+    $scope.authorized=ServerRequets.autherization();
+    $scope.sessionID="Who needs Session ID?";
+    $log.debug("Security controller - authentication " + $scope.authorized); 
+
+    /*
        $scope.authorized=UserManager.autherization($routeParams.session);
-       $scope.sessionID=UserManager.sessionID();
+       $scope.sessionID=UserManager.sessionID();*/
   });
  
-  homeOwnSys.controller("homeMenu",function($log,$scope,UserManager){
+homeOwnSys.controller("homeMenu",function($log,$scope,ServerRequets){// } UserManager){
     let menuMap = {
        Dashbord : {
                  link: "test" ,
@@ -69,7 +84,8 @@ homeOwnSys.controller("securityCheck",function($log,$scope,UserManager,$routePar
                } 
     }
     $scope.imgPath= (img) => "images/" + img;
-    $scope.target=(link) => "#!" + UserManager.sessionID() + "/" + link;
+    //$scope.target=(link) => "#!" + UserManager.sessionID() + "/" + link;
+    $scope.target=(link) => "#!/" + link;
     $scope.menuItems=[];
     for (item in menuMap ) {
       $scope.menuItems.push({ title: item ,
@@ -79,19 +95,22 @@ homeOwnSys.controller("securityCheck",function($log,$scope,UserManager,$routePar
     }
   });
 
-homeOwnSys.controller("homeNav",function($scope,$log,UserManager){
-    const setLink = (target) => "#!" + UserManager.sessionID() + "/" + target;
+
+homeOwnSys.controller("homeNav",function($scope,$log){//,UserManager){
+    //const setLink = (target) => "#!" + UserManager.sessionID() + "/" + target;
+    const setLink = (target) => "#!/" + target;
     $scope.menuItems= [{text: "Login" , link: "#!Login"} ,
                        {text: "Votes" , link: setLink("votes") } ,
                        {text: "Messages" , link: setLink("messages") },
                        {text: "Issues" , link : setLink("issues")} ,
                        {text: "DashBord" , link: setLink("dashboard")}  ] ;
     $scope.homeText="Home";
-    $scope.homeLink="#!" + UserManager.sessionID() + "/index.html";
+    //$scope.homeLink="#!" + UserManager.sessionID() + "/index.html";
+    $scope.homeLink="#!/index.html";
 });
 
-homeOwnSys.controller("MsgNav",function($scope,$log,UserManager){
-    const setLink = (target) => "#!" + UserManager.sessionID() + "/" + target;
+homeOwnSys.controller("MsgNav",function($scope,$log,ServerRequets){
+    const setLink = (target) => "#!/" + target;
     $scope.menuItems= [{text: "Logout" , link: "#!"} ,
                        {text: "Tenant" , link: setLink("tenant") } ,
                        {text: "Votes" , link: setLink("votes") },
@@ -99,11 +118,11 @@ homeOwnSys.controller("MsgNav",function($scope,$log,UserManager){
                        {text: "DashBord" , link: setLink("dashboard")} ,
                        {text: "New Message" , link: setLink("newmessage") }  ] ;
     $scope.homeText="Home";
-    $scope.homeLink="#!" + UserManager.sessionID() + "/index.html";
+    $scope.homeLink="#!" ;
 });
 
-homeOwnSys.controller("IssueNav",function($scope,$log,UserManager){
-    const setLink = (target) => "#!" + UserManager.sessionID() + "/" + target;
+homeOwnSys.controller("IssueNav",function($scope,$log,ServerRequets){
+    const setLink = (target) => "#!/" + target;
     $scope.menuItems= [{text: "Logout" , link: "#!"} ,
                        {text: "Tenant" , link: setLink("tenant") } ,
                        {text: "Votes" , link: setLink("votes") },
@@ -111,11 +130,11 @@ homeOwnSys.controller("IssueNav",function($scope,$log,UserManager){
                        {text: "DashBord" , link: setLink("dashboard")} ,
                        {text: "New Issue" , link: setLink("newIssue") }  ] ;
     $scope.homeText="Home";
-    $scope.homeLink="#!" + UserManager.sessionID() + "/index.html";
+    $scope.homeLink="#!";
 });
 
-homeOwnSys.controller("VoteNav",function($scope,$log,UserManager){
-    const setLink = (target) => "#!" + UserManager.sessionID() + "/" + target;
+homeOwnSys.controller("VoteNav",function($scope,$log,ServerRequets){
+    const setLink = (target) => "#!/" + target;
     $scope.menuItems= [{text: "Logout" , link: "#!"} ,
                        {text: "Tenant" , link: setLink("tenant") } ,
                        {text: "Issues" , link: setLink("issues") },
@@ -123,10 +142,10 @@ homeOwnSys.controller("VoteNav",function($scope,$log,UserManager){
                        {text: "DashBord" , link: setLink("dashboard")} ,
                        {text: "New Vote" , link: setLink("newVote") }  ] ;
     $scope.homeText="Home";
-    $scope.homeLink="#!" + UserManager.sessionID() + "/index.html";
+    $scope.homeLink="#!" ;
 });
 
-homeOwnSys.controller("newIssues", function ($scope, $log, issues,UserManager) {
+homeOwnSys.controller("newIssues", function ($scope, $log, issues,ServerRequets) {
     $log.debug("- initiates new Issues.");
     let title = "New / Open Issues";
     function btnCommnt(issueID) {
@@ -137,12 +156,12 @@ homeOwnSys.controller("newIssues", function ($scope, $log, issues,UserManager) {
     };
 
     function addComment(issueID,text) {
-        let tmp= issues.createComment(UserManager.user(),new Date(),text);
+        let tmp= issues.createComment(ServerRequets.user(),new Date(),text);
         issues.addComment(issueID,tmp);
     }
 
     function closeIssue(issueID,text){
-        let tmp=issues.createComment(UserManager.user(),new Date(),text);
+        let tmp=issues.createComment(ServerRequets.user(),new Date(),text);
         issues.changeState(issueID,tmp,"Closed");
     }
 
@@ -171,7 +190,7 @@ homeOwnSys.controller("newIssues", function ($scope, $log, issues,UserManager) {
     $scope.closeIssue = closeIssue  ;
 });
 
-homeOwnSys.controller("overdueIssues", function ($scope, $log, issues,UserManager) {
+homeOwnSys.controller("overdueIssues", function ($scope, $log, issues,ServerRequets) {
     $log.debug("- initiates overdue Issues.");
     let title = "Overdue Issues";
 
@@ -184,12 +203,12 @@ homeOwnSys.controller("overdueIssues", function ($scope, $log, issues,UserManage
 
     function addComment(issueID,text) {
         $log.debug("overdueIssues controller - add comment request ...");
-        let tmp= issues.createComment(UserManager.user(),new Date(),text);
+        let tmp= issues.createComment(ServerRequets.user(),new Date(),text);
         issues.addComment(issueID,tmp);
     }
 
     function closeIssue(issueID,text){
-        let tmp=issues.createComment(UserManager.user(),new Date(),text);
+        let tmp=issues.createComment(ServerRequets.user(),new Date(),text);
         issues.changeState(issueID,tmp,"Closed");
     }
 
@@ -221,7 +240,7 @@ homeOwnSys.controller("overdueIssues", function ($scope, $log, issues,UserManage
 });
 
 
-homeOwnSys.controller("closedIssues", function ($scope, $log, issues,UserManager) {
+homeOwnSys.controller("closedIssues", function ($scope, $log, issues,ServerRequets) {
     $log.debug("- initiates closed Issues.");
 
     function btnCommnt(issueID) {
@@ -232,12 +251,12 @@ homeOwnSys.controller("closedIssues", function ($scope, $log, issues,UserManager
     };
 
     function addComment(issueID,text) {
-        let tmp= issues.createComment(UserManager.user(),new Date(),text);
+        let tmp= issues.createComment(ServerRequets.user(),new Date(),text);
         issues.addComment(issueID,tmp);
     }
 
     function closeIssue(issueID,text){
-        let tmp=issues.createComment(UserManager.user(),new Date(),text);
+        let tmp=issues.createComment(ServerRequets.user(),new Date(),text);
         issues.changeState(issueID,tmp,"Closed");
     }
 
@@ -266,7 +285,7 @@ homeOwnSys.controller("closedIssues", function ($scope, $log, issues,UserManager
     $scope.clickState = btnState;
 });
 
-homeOwnSys.controller("ctlMessages",function($scope,$log,Messages,$location,UserManager){
+homeOwnSys.controller("ctlMessages",function($scope,$log,Messages,$location,ServerRequets){//UserManager){
     $log.debug("- initiates Messages controller.");
 
     function addMessage(msgID='N/A'){
@@ -301,7 +320,7 @@ homeOwnSys.controller("ctlMessages",function($scope,$log,Messages,$location,User
     $scope.addMessage = addMessage ;
 });
 
-homeOwnSys.controller("addMessage",function($scope,$log,Messages,UserManager,$location){
+homeOwnSys.controller("addMessage",function($scope,$log,Messages,ServerRequets,$location){
     $log.debug("Input from browser:");
     //for ( let key in UserManager) {
     //    $log.debug(key + ": ..." ) ; //+ UserManager[key]);
@@ -321,7 +340,7 @@ homeOwnSys.controller("addMessage",function($scope,$log,Messages,UserManager,$lo
 
     $log.debug("parent message:");
     $log.debug(pMsg);
-    $scope.user=UserManager.user();
+    $scope.user=ServerRequets.user();
     let url=$location.path();
     $scope.home="#!" + url.replace(/[^\/]+$/,"index.html")
     if ( pMsg == undefined ) {
@@ -335,7 +354,7 @@ homeOwnSys.controller("addMessage",function($scope,$log,Messages,UserManager,$lo
     $scope.commit=commit;
 });
 
-homeOwnSys.controller("createIssue",function($scope,$log,issues,UserManager,$location){
+homeOwnSys.controller("createIssue",function($scope,$log,issues,ServerRequets,$location){
 
     function commit(){
         $log.debug("commit new issue ....." + $scope.rTest);
@@ -348,10 +367,10 @@ homeOwnSys.controller("createIssue",function($scope,$log,issues,UserManager,$loc
         creatDate = creatDate.replace(/GMT.+/,"");
         if ( ! isNaN(dueDate)  ) {
             let isuRec= { createdAt: creatDate ,
-                          createdBy: UserManager.user() ,
+                          createdBy: ServerRequets.user() ,
                           title : $scope.title ,
                           dueDate : dateStr ,
-                          comments : [ issues.createComment(UserManager.user(),creatDate,$scope.text) ] }
+                          comments : [ issues.createComment(ServerRequets.user(),creatDate,$scope.text) ] }
             issues.createIssue(isuRec);
             $log.debug("add Issue:");
             $log.debug(isuRec);
@@ -366,30 +385,15 @@ homeOwnSys.controller("createIssue",function($scope,$log,issues,UserManager,$loc
 
     $scope.errorMsg="";
     $scope.testme= () => {$scope.rTest=$scope.dueDateVal };
-/*
-    $(document).ready(function(){
-        console.log("....... jjjjjjjjjjjjjjjjjjjjjjjjjjjjjj");
-        var date_input=$('input[name="date"]'); //our date input has the name "date"
-        var container=$('#test').parent();
-        var options={
-          format: 'mm/dd/yyyy',
-          container: container,
-          todayHighlight: true,
-          autoclose: true,
-        };
-        console.log("....... test ...........");
-        console.log(date_input);
-        //date_input.datepicker(options);
-        console.log("setup datepicker");
-      })*/
 
-    $scope.user=UserManager.user();
+
+    $scope.user=ServerRequets.user();
     let url=$location.path();
     $scope.home="#!" + url.replace(/[^\/]+$/,"index.html")
     $scope.commit=commit;
 });
 
-homeOwnSys.controller("votingCtl",function($log,$scope,UserManager,VotingService){
+homeOwnSys.controller("votingCtl",function($log,$scope,ServerRequets,VotingService){
 
     // Set a callback to run when the Google Visualization API is loaded.
     google.charts.setOnLoadCallback(this.drawChart);
@@ -431,7 +435,7 @@ homeOwnSys.controller("votingCtl",function($log,$scope,UserManager,VotingService
     function vote(votID) {
         //$log.debug("*****************************************************");
         if ( ! VotingService.userCanVote(votID) ) {
-            alert("user '" + UserManager.user() + "' can not vote\n" + "you already voted");
+            alert("user '" + ServerRequets.user() + "' can not vote\n" + "you already voted");
             return ;
         }
         if ( $scope.votVal[votID] === undefined  ){
@@ -456,7 +460,7 @@ homeOwnSys.controller("votingCtl",function($log,$scope,UserManager,VotingService
     $scope.drawPie=drawChart;
     $scope.setIndex = setIndex ;
     $scope.vote=vote;
-    $scope.user=UserManager.user();
+    $scope.user=ServerRequets.user();
     $log.debug("Controller got " + $scope.votingList.length);
     /*
     $scope.$on('$viewContentLoaded',function() {

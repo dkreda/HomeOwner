@@ -2,8 +2,6 @@ function Comment(by, at, text) {
     this.createdBy = by;
     this.createdAt = at;
     this.text = text;
-    //this.comments=[];
-    //return { bb: "just test"};
 }
 
 function Message(by, at, title, text) {
@@ -52,7 +50,6 @@ homeOwnSys.directive("colapsCard", function () {
     return {
         templateUrl: templateFolder + "/acordListTemplate.html"
     }
-    //return {template: "<p>Test of Directive ...</p>"};
 });
 
 homeOwnSys.directive("simpleHeader", function () {
@@ -67,29 +64,20 @@ homeOwnSys.directive("notifHeader", function () {
     }
 });
 
-//() => {templateUrl: "complexHeader.html"});
 //Services
-homeOwnSys.factory("issues", function ($log, $http) {
+homeOwnSys.factory("issues", function ($log, ServerRequets) { // $http) {
     $log.debug("Start issues Service ....");
     //let tmp = new Issue("Dummy", "Just now", "ergent", "Just for test");
-    let initState = false;
+    //let initState = false;
     let isuList = [];
     let stateLevels = {
         "Open": 1,
         "Postponed": 2,
         "Closed": 3
     };
-    //let isuList = [new Issue("apartment 12", "11:23 21 Jan 2017", "Default", "Dummy issue"),
-    //new Issue("new neighbour", "17:25 21 May 2017", "Eargent", "elevetor 2 not works"),
-    //new Issue("meme", "2:08 7 Jan 2018", "Very eargent", "load noice")];
     let openIssues = [];
     let closeIssues = [];
     let overdueIssues = [];
-
-    let urlBuilder = new UrlAddress("");
-    if (!initState)
-        load();
-    $log.debug("Change init state to " + initState);
 
     function createIssue(rec) {
         res = new Issue(rec.createdBy, rec.createdAt, rec.title);
@@ -100,96 +88,35 @@ homeOwnSys.factory("issues", function ($log, $http) {
         return res;
     }
 
-    function initLocal() {
-        $log.debug("local mode reading Jason file ...");
-        //let urladd=buildRequest("issues.json", {});
-        urlBuilder.fileName = dbFolder + "/issues.json";
-        let urladd = urlBuilder.request({});
-        $log.debug(urladd);
-        $http.get(urladd).then(function (responce) {
-            $log.info("answer arrived: " + responce);
-            for (let key in responce) {
-                $log.debug(key + " > " + responce[key]);
-            }
-            $log.debug("overwrite isuList " + isuList.length);
-            $log.debug(isuList[0]);
-            isuList.splice(0);
-            for (let i = 0; i < responce.data.length; i++) {
-                isuList.push(createIssue(responce.data[i]));
-            }
-            $log.debug("isuList content:");
-            $log.debug(isuList);
-            $log.debug(isuList[0]);
-            let tttmp = isuList[0];
-            $log.debug(tttmp.getID());
-            $log.debug(isuList[0].getID());
-            $log.debug("----------------------");
-            load();
-            //isuList = responce.data;
-            /*
-            let db = responce.data;
-            $log.info("===== content:");
-            for (let i = 0; i < db.length; i++) {
-                let dbRec = db[i];
-                for (let key in dbRec) {
-                    $log.debug(key + " > " + dbRec[key]);
-                }
-            }*/
-        }, function (res) {
-            $log.info(urladd);
-            alert("Fail to read DB ..." + "\n Read from:\n " + urladd);
-        });
+    function load(jSon) {
+        isuList.splice(0);
+        openIssues.splice(0);
+        closeIssues.splice(0);
+        overdueIssues.splice(0);
+        for (let i = 0; i < jSon.length; i++) {
+            let isuRec = createIssue(jSon[i]);
+            let curent = new Date();
+            isuList.push(isuRec);
+            if (isuRec.status != "Closed") {
+                if (isuRec.dueDate != "No limit" & Date.parse(isuRec.dueDate) < curent.getTime())
+                    overdueIssues.push(isuRec)
+                else openIssues.push(isuRec);
+            } else
+                closeIssues.push(isuRec);
+        }
     }
 
-    function load() {
-        initState = true;
-        if (urlBuilder.isLocal) {
-            if (isuList.length > 0) {
-                openIssues.splice(0);
-                closeIssues.splice(0);
-                for (let i = 0; i < isuList.length; i++) {
-                    let rec = isuList[i];
-                    let curent = new Date();
-                    //$log.debug(rec.dueDate + " > " + curent + (Date.parse(rec.dueDate) < curent.getTime() ? "OverDue" : Date.parse(rec.dueDate)));
-                    if (rec.status != "Closed") {
-                        if (rec.dueDate != "No limit" & Date.parse(rec.dueDate) < curent.getTime())
-                            overdueIssues.push(rec)
-                        else openIssues.push(rec);
-                    } else
-                        closeIssues.push(rec);
-
-
-                }
-                $log.debug(" - finishe to load local json.");
-                $log.debug(openIssues);
-
-            } else {
-
-                initLocal();
-                //load();
-            }
-        } else {
-            urlBuilder.fileName = "test.php";
-            let req = { filter: "closedIssues" };
-            $http.get(urlBuilder.request(req)).then(function (res) { closeIssues = res.data });
-            req = { filter: "openIssues" };
-            $http.get(urlBuilder.request(req)).then(function (res) { openIssues = res.data });
-        }
+    function init() {
+        $log.debug("Issues services load DB");
+        let url = ServerRequets.localMode ? dbFolder + "/issues.json" : "iSsue-Server-Remote";
+        let req = ServerRequets.sendSequredReq(url, {});
+        req.then(load, function () { throw "fail to load Issues from DB" });
     }
 
     function findIssue(isuID) {
         for (let i = 0; i < isuList.length; i++) {
             if (isuList[i].getID() == isuID) {
                 return isuList[i];
-            }
-        }
-    }
-
-    function changeReadFlag(isuID) {
-        $log.info("cahnge read state of " + isuID);
-        for (let i = 0; i < isuList.length; i++) {
-            if (isuList[i].getID() == isuID) {
-                isuList[i].readFlag = false;
             }
         }
     }
@@ -257,15 +184,13 @@ homeOwnSys.factory("issues", function ($log, $http) {
         isuList.push(tmp);
         openIssues.push(tmp);
     }
-
+    init();
     //$log.debug("about to return ....");
     return {
         //issue: tmp,
         openIssues: openIssues,
         closedIssues: closeIssues,
         overdueIssues: overdueIssues,
-        //listOfIsues: isuList,
-        chgFlag: changeReadFlag,
         getDetails: getDetails,
         getIssueByID: findIssue,
         createComment: (by, at, text) => ({
@@ -280,62 +205,33 @@ homeOwnSys.factory("issues", function ($log, $http) {
 });
 
 
-homeOwnSys.factory("UserManager", function ($log, $http) {
+homeOwnSys.factory("UserManager", function ($log, ServerRequets) {
     $log.debug("Start user service ....");
     let userList = [];
-    let urlAddress = new UrlAddress("");
-    let autherization = "blocked";
-    let sessionID = "";
-    let userRec = {};
 
-    function initLocal() {
-        $log.debug("local mode reading Jason file ...");
-        //let urladd=buildRequest("issues.json", {});
-        urlAddress.fileName = dbFolder + "/users.json";
-        let urladd = urlAddress.request({});
-        $log.debug(urladd);
-        $http.get(urladd).then(function (responce) {
-            $log.info("answer arrived: " + responce);
-            for (let key in responce) {
-                $log.debug(key + " > " + responce[key]);
-            }
-            $log.debug("overwrite userList " + userList.length);
-            $log.debug(userList[0]);
+    function init() {
+        function readJson(jSon) {
+            $log.debug("start building userlist ....");
             userList.splice(0);
-            for (let i = 0; i < responce.data.length; i++) {
-                let tmp = responce.data[i];
+            for (let i = 0; i < jSon.length; i++) {
+                let tmp = jSon[i];
                 userList.push(new UserObj(tmp.name, tmp.password, tmp.appartment, tmp.mail, tmp.isCommetee));
             }
-            $log.debug("userList content:");
-            $log.debug(userList);
-            $log.debug(userList[0]);
-            $log.debug("----------------------");
-            //load();
-            //isuList = responce.data;
-            /*
-            let db = responce.data;
-            $log.info("===== content:");
-            for (let i = 0; i < db.length; i++) {
-                let dbRec = db[i];
-                for (let key in dbRec) {
-                    $log.debug(key + " > " + dbRec[key]);
-                }
-            }*/
-        }, function (res) {
-            $log.info(urladd);
-            alert("Fail to read DB ..." + "\n Read from:\n " + urladd);
-        });
-    };
+        }
+        let url = ServerRequets.localMode ? dbFolder + "/users.json" : "notReadyServer";
+        let builder = ServerRequets.sendSequredReq(url, {});
+        builder.then(readJson, () => { $log.error("user list build failed !!!") });
+    }
 
     function findUser(user) {
-        if (urlAddress.isLocal) {
-            for (let i = 0; i < userList.length; i++) {
-                let tmp = userList[i];
-                if (tmp.name == user || tmp.mail == user)
-                    return tmp;
-            }
-            $log.debug("user " + user + " not found > " + userList.length);
+        //if (urlAddress.isLocal) {
+        for (let i = 0; i < userList.length; i++) {
+            let tmp = userList[i];
+            if (tmp.name == user || tmp.mail == user)
+                return tmp;
         }
+        $log.debug("user " + user + " not found > " + userList.length);
+        //}
         return {};
     }
 
@@ -343,14 +239,14 @@ homeOwnSys.factory("UserManager", function ($log, $http) {
         //$log.debug(urlAddress);
         if (urlAddress.isLocal) {
             userRec = findUser(user);
-            if ( userRec instanceof UserObj && userRec.validatePassword(password)) {
+            if (userRec instanceof UserObj && userRec.validatePassword(password)) {
                 $log.debug("user " + user + " pass authendication");
-                autherization = userRec.isCommetee ? "Commetee" : "Regular" ;
+                autherization = userRec.isCommetee ? "Commetee" : "Regular";
                 sessionID = Math.random().toString(36).substring(2, 15);
             } else {
                 $log.error("authendication of " + user + " failed");
-                autherization = "blocked" ;
-                sessionID ="" ;
+                autherization = "blocked";
+                sessionID = "";
             }
             /*
             $log.debug("user is " + user);
@@ -359,12 +255,12 @@ homeOwnSys.factory("UserManager", function ($log, $http) {
             autherization = userRec.hasOwnProperty("name") ? userRec.validatePassword(password) : "blocked"; // can be "blocked" , "Regular" , "Commity"
             sessionID = autherization != "blocked" ? Math.random().toString(36).substring(2, 15) : "";
             */
-            
+
 
         } else {
             $log.info("Server validation is not ready yet");
             sessionID = "testMode-Login";
-            autherization="Regular";
+            autherization = "Regular";
             userRec = { name: user };
         }
         $log.debug("UserManager Service. user Rec: " + userRec.name);
@@ -380,30 +276,28 @@ homeOwnSys.factory("UserManager", function ($log, $http) {
             $log.info(urlAddress.request({}));
         } else {
             $log.debug("Verifying session " + session);
-            let retVal=sessionID == session ? autherization : "blocked";
+            let retVal = sessionID == session ? autherization : "blocked";
             $log.debug("autherization : " + retVal + " for session " + session);
             return retVal;
         }
     };
 
-    initLocal();
+    //initLocal();
+    init();
 
     return {
-        login: validate,
-        autherization: verifyAuth,
-        user: () => userRec.name,
-        sessionID: () => sessionID ? sessionID : "",
-        setAuthenticationServer: function (url) { urlAddress = new UrlAddress(url); }
+        getUser: findUser
     };
 });
 
-homeOwnSys.factory("Messages", function ($log, $http, UserManager) {
+homeOwnSys.factory("Messages", function ($log, $http, ServerRequets) {//} UserManager) {
     $log.debug("Start Messages service ....");
-    let messageList = [];
-    let urlAddress = new UrlAddress("");
+    let rootMessageList = [];
+    //let urlAddress = new UrlAddress("");
     let hashTable = {};
     let lastMsgID = 0;
 
+    /*
     function createMessage(objRec) {
         //$log.debug("create new message from json object:");
         //$log.debug(objRec);
@@ -416,8 +310,9 @@ homeOwnSys.factory("Messages", function ($log, $http, UserManager) {
             //$log.debug(tmp.mesageList[0].createdBy);
         }
         return tmp;
-    }
+    }*/
 
+    /*
     function lookupTable(arrayMessage) {
         //$log.debug("analyze array >" );
         //$log.debug(arrayMessage);
@@ -426,8 +321,44 @@ homeOwnSys.factory("Messages", function ($log, $http, UserManager) {
             hashTable[arrayMessage[i].getID()] = arrayMessage[i];
             lookupTable(arrayMessage[i].mesageList);
         }
+    }*/
+
+
+    function loadRecord(jSon) {
+        let tmp = new Message(jSon.createdBy, jSon.createdAt, jSon.title, jSon.text);
+        if (jSon.hasOwnProperty("readFlag"))
+            tmp.readFlag = jSon.readFlag;
+        hashTable[tmp.getID()] = tmp;
+        for (let i = 0; i < jSon.mesageList.length; i++) {
+            tmp.addMessage(loadRecord(jSon.mesageList[i]));
+        }
+        return tmp;
     }
 
+    function load(jSon) {
+        console.log("running from load function");
+        $log.debug(jSon);
+        $log.debug("" + jSon);
+
+        // clear Service
+        rootMessageList.splice(0);
+        for (k in hashTable) delete hashTable[k];
+        for (let i = 0; i < jSon.length; i++) {
+            let msgRec = loadRecord(jSon[i]);
+            rootMessageList.push(msgRec);
+        }
+        console.log("Message service - finish load messages from DB.");
+        for (let k in hashTable) $log.debug(k + " >    " + hashTable[k].title);
+    }
+
+    function init() {
+        let url = ServerRequets.localMode ? dbFolder + "/Messages.json" : "Messages-remoteServer";
+        let req = ServerRequets.sendSequredReq(url, {});
+        $log.debug("Message Service - start retreive DB.")
+        req.then(load, function () { $log.error("faile to retreive 'Messages' database") });
+    }
+
+    /*
     function initLocal() {
         urlAddress.fileName = dbFolder + "/Messages.json";
         let urladd = urlAddress.request({});
@@ -436,28 +367,24 @@ homeOwnSys.factory("Messages", function ($log, $http, UserManager) {
             $log.info("answer arrived: " + responce);
             //$log.debug("overwrite userList " + userList.length);
             //$log.debug(userList[0]);
-            messageList.splice(0);
+            rootMessageList.splice(0);
             for (let i = 0; i < responce.data.length; i++) {
                 //let tmp = ;
-                messageList.push(createMessage(responce.data[i]));
+                rootMessageList.push(createMessage(responce.data[i]));
             }
-            lookupTable(messageList);
-            //$log.debug("userList content:");
-            //$log.debug(userList);
-            //$log.debug(userList[0]);
-            //$log.debug("----------------------");
+            lookupTable(rootMessageList);
         }, function (res) {
             $log.info(urladd);
             alert("Fail to read DB ..." + "\n Read from:\n " + urladd);
         });
-    };
+    };*/
 
     function addMessage(title, text, parent = undefined) {
         let today = new Date();
         let todayStr = today.toString().replace(/GMT.+/, "");
         $log.debug("Message Service - addmessage input(" + title + "," + text);
-        $log.debug("Message Service - create message: " + UserManager.user() + " ," + todayStr + " ," + title);
-        let newMessage = new Message(UserManager.user(), todayStr, title, text);
+        $log.debug("Message Service - create message: " + ServerRequets.user() + " ," + todayStr + " ," + title);
+        let newMessage = new Message(ServerRequets.user(), todayStr, title, text);
         $log.debug(newMessage);
         //let tmp = newMessage.createdAt + newMessage.createdBy;
         hashTable[newMessage.getID()] = newMessage;
@@ -465,19 +392,13 @@ homeOwnSys.factory("Messages", function ($log, $http, UserManager) {
         if (parent) {
             hashTable[parent].addMessage(newMessage);
         } else {
-            messageList.push(newMessage);
+            rootMessageList.push(newMessage);
         }
     }
 
     function changeReadFlag(msgID) {
         $log.info("cahnge read state of " + msgID);
         hashTable[msgID].readFlag = false;
-        /*
-        for (let i = 0; i < messageList.length; i++) {
-            if (messageList[i].getID() == isuID) {
-                messageList[i].readFlag = false;
-            }
-        } */
     }
 
     function getDetails(sesID) {
@@ -485,9 +406,10 @@ homeOwnSys.factory("Messages", function ($log, $http, UserManager) {
     }
 
 
-    initLocal();
+    //initLocal();
+    init();
     return {
-        messageList: messageList,
+        messageList: rootMessageList,
         findMessageByID: (id) => hashTable[id],
         addMessage: addMessage,
         chgFlag: changeReadFlag,
@@ -496,7 +418,7 @@ homeOwnSys.factory("Messages", function ($log, $http, UserManager) {
     }
 });
 
-homeOwnSys.factory("VotingService", function ($log, $http, UserManager) {
+homeOwnSys.factory("VotingService", function ($log, $http, ServerRequets) {
 
     function extractUsers(votesRec) {
         let result = [];
@@ -532,11 +454,11 @@ homeOwnSys.factory("VotingService", function ($log, $http, UserManager) {
         this.vote = (op, user) => votes[op].push(user);
 
         //this.vv = votes;
-        
+
     }
 
     function Vote(option) {
-        this.votedBy = UserManager.user();
+        this.votedBy = ServerRequets.user();
         this.voteVal = option;
     }
 
@@ -545,7 +467,7 @@ homeOwnSys.factory("VotingService", function ($log, $http, UserManager) {
         this.vote(record.voteVal, record.votedBy);
         //$log.debug("before vote" + this.users().length);
         //$log.debug(this.vv.toString());
-        
+
     }
 
     Voting.prototype.userVoted = function (userName) {
@@ -569,49 +491,8 @@ homeOwnSys.factory("VotingService", function ($log, $http, UserManager) {
     let vList = [];
     let urlAddress = new UrlAddress("");
 
-    function initLocal() {
-        urlAddress.fileName = dbFolder + "/Votes.json";
-        let urladd = urlAddress.request({});
-        $log.debug("Votes-Service: local mode reading Jason file " + urladd);
-        $http.get(urladd).then(function (responce) {
-            $log.info("answer arrived: " + responce);
-            // clear hash table
-            for (let k in voteList) delete voteList[k];
-            vList.splice(0);
-            //let mask={createdBy: 0,dueDate:0,title:0,votes:0}
-            for (let i = 0; i < responce.data.length; i++) {
-                createVoting(responce.data[i]);
-                /*
-                let tmpJson = responce.data[i];
-                let tmpVotRec = new Voting(tmpJson.createdBy, tmpJson.dueDate, tmpJson.title, tmpJson.options,
-                    tmpJson.hasOwnProperty("createdAt") ? tmpJson.createdAt : undefined);
-                if (tmpJson.hasOwnProperty("details")) tmpVotRec.details = tmpJson.details;
-                if (tmpJson.hasOwnProperty("votes")) {
-                    for (let j = 0; j < tmpJson.votes.length; j++) {
-                        let vTmp = new Vote(tmpJson.votes[j].option);
-                        vTmp.votedBy = tmpJson.votes[j].user;
-                        tmpVotRec.addVote(vTmp);
-                    }
-                }
-                //$log.debug("Voting Object:");
-                //$log.debug(tmpVotRec);
-                //$log.debug(tmpVotRec.userVoted());
-                voteList[getIndexVote(tmpVotRec)] = tmpVotRec;*/
-            }
-            //getAllVotes();
-        }, function (res) {
-            $log.info(urladd);
-            alert("Fail to read DB ..." + "\n Read from:\n " + urladd);
-        });
-    };
 
-    initLocal();
-    /*
-    function getAllVotes() {
-        vList.splice(0);
-        for (let k in voteList) vList.push(k);
-        return vList;
-    }*/
+
 
     function getVoteResults(vKey) {
         let res = {};
@@ -623,19 +504,35 @@ homeOwnSys.factory("VotingService", function ($log, $http, UserManager) {
         return res;
     }
 
-    function createVoting(jSon){
-        let requiredFields=["dueDate", "title", "options"];
-        for ( let i=0 ; i< requiredFields.length; i++) 
-            if ( ! requiredFields[i] in jSon )
-                throw "missing field '" + requiredFields[i] +"' in record. skip this voting record";
+    function createVoting(jSon) {
+        let requiredFields = ["dueDate", "title", "options"];
+        for (let i = 0; i < requiredFields.length; i++)
+            if (!requiredFields[i] in jSon)
+                throw "missing field '" + requiredFields[i] + "' in record. skip this voting record";
         let tmpVotRec = jsonToVoteRec(jSon);
-        let index=getIndexVote(tmpVotRec);
+        let index = getIndexVote(tmpVotRec);
         voteList[index] = tmpVotRec;
         vList.push(index);
     }
 
-    function jsonToVoteRec(jSon){
-        let by=jSon.hasOwnProperty("createdBy") ? jSon.createdBy : UserManager.user();
+    function load(jSon) {
+        // clear hash table
+        for (let k in voteList) delete voteList[k];
+        vList.splice(0);
+        for (let i = 0; i < jSon.length; i++) {
+            createVoting(jSon[i]);
+        }
+    }
+
+    function init() {
+        let urladd = ServerRequets.localMode ? dbFolder + "/Votes.json" : "remoteServer-Vote";
+        $log.debug("Votes-Service: load DB");
+        let req = ServerRequets.sendSequredReq(urladd, {});
+        req.then(load, () => { throw "Fail to load voting from DB" });
+    }
+
+    function jsonToVoteRec(jSon) {
+        let by = jSon.hasOwnProperty("createdBy") ? jSon.createdBy : ServerRequets.user();
         let tmpVotRec = new Voting(by, jSon.dueDate, jSon.title, jSon.options,
             jSon.hasOwnProperty("createdAt") ? jSon.createdAt : undefined);
         if (jSon.hasOwnProperty("details")) tmpVotRec.details = jSon.details;
@@ -649,8 +546,7 @@ homeOwnSys.factory("VotingService", function ($log, $http, UserManager) {
         return tmpVotRec;
     }
 
-    
-    //getAllVotes();
+    init();
 
     return {
         VotingList: vList,
@@ -659,7 +555,131 @@ homeOwnSys.factory("VotingService", function ($log, $http, UserManager) {
         getVoteOptions: (vKey) => voteList[vKey].options(),
         getVoteResults: getVoteResults,
         vote: (vKey, votVal) => voteList[vKey].addVote(votVal),
-        userCanVote: (vKey) => !voteList[vKey].userVoted(UserManager.user()),
+        userCanVote: (vKey) => !voteList[vKey].userVoted(ServerRequets.user()),
         addVotingRecord: createVoting
     }
+});
+
+homeOwnSys.factory("ServerRequets", function ($log, $http, $q) {
+    let server = new UrlAddress("");
+    let sessionID = "";
+    let userAuthorization = "blocked";
+    let userName = "";
+
+
+    function sendRequest(url, jSonReq) {
+        let res = $q.defer();
+        server.fileName = url;
+        $http.get(server.request(jSonReq)).then(
+            function (responce) {
+                $log.debug("- got answer from " + server.request({}));
+                $log.debug("- calling resolve with " + responce.data);
+                res.resolve(responce.data);
+            }, function (responce) {
+                $log.error("- failed to retreive " + server.request(jSonReq));
+                $log.error("- server respose:");
+                $log.error(responce);
+                alert("Fail to retreive from " + server.request({}));
+                res.reject();
+            });
+        return res.promise;
+    }
+
+    function sendSequredReq(url, jSonReq) {
+        function validUser(v, f) {
+            let valid = server.isLocal ? validateLocalSession : validateServerSession;
+            if (valid()) {
+                $log.debug("- session validation pass (" + sessionID + ")");
+                v(url, jSonReq);
+            } else {
+                $log.debug("- session '" + sessionID + "' is not valid");
+                alert("access denied");
+                f();
+            }
+        }
+        let res = $q.defer();
+        let chkFun = $q(validUser);
+        chkFun.then(function (u, j) {
+            console.log("run validuser success url " + u + " options " + j);
+            let tmp = sendRequest(u, j);
+            console.log("got promise from send request ....");
+            tmp.then(res.resolve, res.reject)
+        }, function () { console.log("ooops validation failed?") });
+        return res.promise;
+    }
+
+    function validateLocalSession() {
+        //let bubub;
+        if (sessionStorage != undefined) {
+            if (!sessionStorage.hasOwnProperty("sessionID")) {
+                $log.info("send request before login.");
+                alert("Please login");
+                return false;
+            } else
+                return sessionStorage.sessionID == sessionID;
+        } else {
+            $log.error("local storage is not supported. No security validation is avilable");
+            //$log.debug(bubub);
+            $log.debug(sessionStorage);
+            return false;
+
+        }
+    }
+
+    function validateServerSession() {
+        $log.debug("server session validation is not implemented yet ...")
+        return true;
+    }
+
+    function login(user, password, notifFunc) {
+        if (server.isLocal) {
+            function verifyUser(jSon) {
+                for (let i = 0; i < jSon.length; i++) {
+                    let jSonRec = jSon[i];
+                    if (user == jSonRec.name && password == jSonRec.password) {
+                        sessionID = Math.random().toString(36).substring(2, 15);
+                        userAuthorization = jSonRec.isCommetee ? "Commetee" : "Regular";
+                        userName = user;
+                        sessionStorage.setItem("sessionID", sessionID);
+                        notifFunc();
+                        return;
+                        //return sessionID;
+                    }
+                }
+                $log.error("user or password are wrong. login faild");
+                sessionID = "";
+                userAuthorization = "blocked";
+                userName = "";
+                sessionStorage.removeItem("sessionID");
+                notifFunc();
+            }
+            let req = sendRequest(dbFolder + "/users.json", {});
+            req.then(verifyUser, function () { $log.error("login failed !") });
+        } else {
+            $log.info("Server login is not ready yet. use temporary autorization.");
+            sessionID = "testMode-Login";
+            userAuthorization = "Regular";
+            notifFunc();
+        }
+        //sessionID = UserManager.login(user,password);
+    }
+
+    function dummyLogin(user) {
+        $log.info("Dummy login - working from local db only !");
+        sessionID = "testMode-Login";
+        userAuthorization = "Regular";
+        userName = user;
+        sessionStorage.setItem("sessionID", sessionID);
+    }
+
+    return {
+        //sendRequest: sendRequest ,
+        sendSequredReq: sendSequredReq,
+        login: login,
+        localMode: server.isLocal,
+        user: () => userName,
+        autherization: () => userAuthorization,
+        dummyLogin: dummyLogin
+    }
+
 });

@@ -95,9 +95,17 @@ homeOwnSys.config(function ($routeProvider) {
         templateUrl: "issueManagment.html" ,
         controller: "securityCheck"
     }).
+    when("/issues",{
+      templateUrl: "issueManagment.html" ,
+      controller: "securityCheck"
+  }).
     when("/:session/messages",{ 
           templateUrl: "messageManage.html" ,
           controller: "securityCheck"
+    }).
+    when("/messages",{ 
+      templateUrl: "messageManage.html" ,
+      controller: "securityCheck"
     }).
     when("/index.html",{ 
           templateUrl: "homePage.html" ,
@@ -105,12 +113,18 @@ homeOwnSys.config(function ($routeProvider) {
     }).
     when("/:session/newmessage",{ templateUrl: templateFolder + "/newMessage.html",
                                   controller: "securityCheck"}).
+    when("/newmessage",{ templateUrl: templateFolder + "/newMessage.html",
+                         controller: "securityCheck"}).
     when("/Login",{templateUrl: "Login.html" , controller: "ctlLogin"}).
     when("/:session/newIssue",{ templateUrl: templateFolder + "/newIssue.html" ,
                                 controller: "securityCheck"}).
+    when("/newIssue",{ templateUrl: templateFolder + "/newIssue.html" ,
+                       controller: "securityCheck"}).
     when("/:session/votes",{ templateUrl: "/VoteManagment.html" ,
                                 controller: "securityCheck"}).
-    when("/:session/newVote",{ templateUrl:  templateFolder + "/newVote.html" ,
+    when("/votes",{ templateUrl: "/VoteManagment.html" ,
+                            controller: "securityCheck"}).
+    when("/newVote",{ templateUrl:  templateFolder + "/newVote.html" ,
                                 controller: "securityCheck"}).
     //otherwise({ template : "<h1>error1.html</h1>"});
     otherwise({templateUrl: "error1.html"});
@@ -126,17 +140,3 @@ function errorUrl(ttt) {
   //console.log(ttt.$routeParams)
   return { template: "<h1>error1.html Manual template</h1>" };
 };
-
-
-function ok2() {
-  console.log("tesing route with secure ...");
-  //console.log($routeProvider.session);
-  return { templateUrl: "error1.html" };
-}
-
-
-/* Angular Services for homeOwn 
-  - should be move to other file ... */
-//homeOwnSys.service()
-
-
